@@ -1,0 +1,40 @@
+MongoDB native driver:(npm module)
+    Used for connecting databases with Node.js
+
+npm package - mongodb
+
+Objectid - Mongodb:
+    Ids are Global unique identifiers and are designed to be unique
+
+Querying Documents:
+    With find which is used for selecting multiple users - We get a cursor back which we can use to perform some methods
+
+    These methods are like toArray(), limit
+
+Updating Documents:
+    update is deprecated
+    updateMany and updateOne are available update operations
+
+
+***************************************************************************************************8
+REST APIs and Mongoose (Task App)
+ - We will be using Mongoose
+
+ Explored crud using mongoose again
+
+ Data validation and sanitization - We will do this while defining model
+
+Promise Chaining:
+    We can return a promise from then callback which allows us to return a promise and use then again to create a promise call
+    We use a catch at end for all errors
+
+Api Authentication and Security:
+    Securely Stroing passwords:
+        bcryptjs
+
+    Passwords are mainly updated in update and get.
+
+    We are customising the user model to secure passwords
+
+Logging in users:
+    
