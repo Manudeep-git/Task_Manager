@@ -1,5 +1,6 @@
 const express = require('express');
 const router = new express.Router()
+const auth = require("../middleware/auth")
 
 require("../db/mongoose")
 
@@ -13,7 +14,8 @@ router.post('/', async (req, res) => {
 
     try {
         const userObj = await user.save()
-        res.status(201).send(userObj)
+        const token = userObj.generateAuthToken();
+        res.status(201).send({userObj,token})
     }
     catch (e) {
         res.status(400).send(e.message)
@@ -30,26 +32,40 @@ router.post('/', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
-        res.send(user)
+        const token = await user.generateAuthToken();
+        res.send({user,token})
     }
     catch (e) {
-        res.status(400).send()
+        res.status(400).send(e.message)
+    }
+})
+
+//Logout User
+router.post('/logout', auth, async(req,res)=> {
+    try {
+        console.log(req.token)
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token!== req.token
+        })
+        console.log(req.user.tokens.includes(req.token))
+
+        await req.user.save();
+
+        res.send();
+    }
+    catch(e){
+        res.status(500).send(e.message);
     }
 })
 
 //-------------------------------------get data-----------------------------------------------
 // 1. User - multiple users
-router.get('/', async (req, res) => {
-
-    try {
-        const users = await User.find({})
-        if (!users) {
-            return res.status(404).send("No Users in Database")
-        }
-        res.send(users)
+router.get('/me', auth ,async (req, res) => {
+    try{
+        res.send(req.user);
     }
-    catch (e) {
-        res.status(500).send(e.message)
+    catch(e){
+        res.send(e.message)
     }
 })
 
@@ -58,7 +74,7 @@ router.get('/:id', async (req, res) => {
     const _id = req.params.id
 
     try {
-        const userObj = User.findById(_id);
+        const userObj = await User.findById(_id);
         if (!userObj) {
             return res.status(404).send("User not Found")
         }
@@ -88,6 +104,10 @@ router.patch('/:id', async (req, res) => {
     try {
         const userObj = await User.findById(_id)
 
+        if (!userObj) {
+            return res.status(404).send("User not Found")
+        }
+
         updates.forEach(update => {
             userObj[update] = req.body[update]
         })
@@ -95,10 +115,6 @@ router.patch('/:id', async (req, res) => {
         await userObj.save();
         /*const userObj = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
         // this bypasses mongoose middleware functions */
-
-        if (!userObj) {
-            return res.status(404).send("User not Found")
-        }
 
         res.send(userObj) // sends updated userObj
     }

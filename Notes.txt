@@ -37,4 +37,30 @@ Api Authentication and Security:
     We are customising the user model to secure passwords
 
 Logging in users:
+    Log in functionality is handled by using a route with req-body as email and password.
+    We had to use statics function in User model and also we need to use the schema
+    Password should be compared with hashed-password
+
+JSON Web Tokens(JWT)
+    Only signup route and login route are public. We need to setup authentication for other methods as user should not see these.
+    So we need to provide user a token-back once he is authenticated.
+    
+    jsonwebtoken package is used. It has sign method which will give a new authentication token
+
+    JWT token has three parts:
+        Header - base64 encoded string - meta information about token type(jwt) and algorithm
+        payload - base64 encoded sring - data we provided in sign method
+        signature - this is used to verify the token
+
+    As long as the toen exists, users are logged in
+    So we store all the tokens for a user as part of user document
+
+Express middleware:
+    Now we are gonna authenticate users when they perform actions such as update,delete etc which are restricted
+    Keep in mind that signup and login are public methods and don't require a json web token
+
+    Without middleware : new request -> run route handler (happens in  index.js)
+    with middleware: new request -> do something -> run route handler
+
+Advanced Postman:
     
